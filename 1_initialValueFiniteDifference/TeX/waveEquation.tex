@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[left=1.5cm,right=1.5cm,bottom=1.5cm,top =1.5cm]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\usepackage{amsmath}
+\geometry{a4paper}   
+                % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\definecolor{vlightgray}{rgb}{0.9,0.9,0.9}
+
+\title{Workshop \#: IVPs with PDEs using Finite Differences \\ The Wave Equation }
+\author{\textbf{Reading: } Numerical Recipes, Ch. 20.0 - 20.2 }
+\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+A wire of length $L$ is composed of a material of mass per unit length $\rho$ and is held under tension $T$. Small amplitude  displacements of the string $u(x,t)$ are governed by the wave equation
+\begin{equation}
+\frac{\partial^2 u}{\partial t^2 } = c^2 \frac{\partial^2 u}{\partial x^2 }; \quad\quad c = \sqrt{T/\rho}; \quad\quad x \in \{0,L\}.
+\end{equation} 
+\vspace{12pt}
+\dotfill 
+\begin{enumerate}
+
+\item \textbf{Dimensionless Variables -- }  Before solving the equation numerically, we should cast it in a convenient dimensionless form. This has the benefit of i) removing redundant parameters from the simulation (reducing the number of parameters), and ii) scaling numbers to $\sim\mathcal{O}(1)$, which can improve accuracy and numerical stability. By moving to dimensionless quantities 
+\begin{align}
+\tilde{x} &= x/x_0 & \tilde{t} &= t/t_0 & \tilde{u} &= u/u_0
+\end{align}
+show that for appropriate choices of $x_0$, $t_0$ and $u_0$, the wave equation can be expressed in a form containing no adjustable parameters. 
+
+
+\item \textbf{Boundary Conditions:} Code to get you started is provided in \fcolorbox{white}{vlightgray}{\texttt{\color{magenta}{waveEquation.cpp}}}, and  \fcolorbox{white}{vlightgray}{\texttt{\color{magenta}{methods.cpp}}}. It uses the (unstable) FTCS method, and imposes  Dirichlet  boundary conditions $u(0) = u(L) = 0$. Modify the code to additionally implement:\\
+
+ i) Neumann boundary conditions\footnote{Use ``ghost points"  to ensure your Neumann conditions are accurate to the same order as the  spatial derivatives. }: \hspace{2.9cm} $u'(0) = u'(L) = 0$ \\
+ ii) Mixed boundary conditions: \hspace{3.5cm} $u(0) = u'(L) = 0 $\\
+ iii) Periodic boundary conditions:  \hspace{3.2cm}$u(0) = u(L + \Delta x)$\\
+ 
+
+
+\item \textbf{Travelling Waves}: To verify your boundary conditions, suppose the wire is ``plucked" at the centre, such that initial state is a stationary disturbance of the form:
+\begin{align}
+u(x,0) &= \exp{\left[- \left(\frac{x-1/2 }{0.05} \right)^2 \right]};&  \partial_t u(x,0) &= 0;
+\end{align}
+Create a space-time image showing the dynamics for the 4 boundary condition cases for $t \in [0,1]$. Briefly explain the dynamics seen in each case. Do the same for the case where this initial disturbance  is  travelling to the right.
+
+\item \textbf{Improving the Algorithm:}  Writing $u(x_i,t_j) = u_i^j$, show that applying 2nd order finite differences to both the time and space derivatives yields the 2nd order leapfrog scheme:
+\begin{gather}
+u_i^{j+1} = -u_i^{j-1} + 2(1- \beta^2)  u_i^j + \beta^2(u_{i+1}^j + u^j_{i-1});  \quad j>0  \\
+u_i^{1} = \Delta t g_i + (1 - \beta^2) u_i^1 + \tfrac{1}{2}\beta^2 (f_{i+1} + f_{i-1})
+\end{gather}
+where $\beta = c \Delta t / \Delta x$, $g_i = \partial_t u_i^0$ and $f_i = u_i^0$.  Von Neumann stability analysis shows this scheme is stable for $\beta < 1$. Implement Eqs.~(4) and ~(5), and compare the difference between the initial condition and the final state,  $|u(x,0)-u(x,2)|$ for the right-travelling pulse, for a few values of $\Delta t$ and $\Delta x$.  What happens for the special case $\beta = 1$?
+\newpage
+
+
+\textbf{Extra Problems (optional)}
+
+\item \textbf{*Standing Waves:} Write down (or look up) the allowed standing wave solutions for either Dirichlet or Neumann boundary conditions, and the corresponding allowed values of the wavenumber $k$ and their frequency $\omega$. Simulate a few cases and verify that your program agrees with the expected analytical result.
+
+\item \textbf{*Calculate the Energy:} Using the trapezoidal rule, add a function to your program calculate the energy (per unit mass)
+\begin{equation}
+E = K(t) + V(t) = \frac{1}{2 L}  \int_0^L dx\;  \left( u_t^2 +  c^2 u_x^2 \right) .
+\end{equation}
+Verify $E$ is conserved in the dynamics. Compare the error for different time stepping schemes, similar to as in 4.
+
+\item \textbf{*Waves on a Catenery} When a cable of uniform density $\rho$ and length $L$ is suspended under gravity, it forms a catenary shape with $y(x) = D \cosh{(x/D)}$, and $T(x) = T_0 \cosh{(x/D)}$, where $D$ is the minimum height of the cable above the ground and $x\in \{-L/2,L/2\}$. The disturbances $u(x)$ on top of the equilibrium background profile can be shown to obey the modified wave equation
+ 
+\begin{equation}
+\rho \frac{\partial^2 u}{\partial t^2} = T\frac{\partial^2 u}{\partial x^2} + \frac{\partial T}{\partial x} \frac{\partial u}{\partial x}.
+\end{equation}
+Extend your code to solve Eq.~(7) and explore what happens for the gaussian disturbance on a catenery.
+
+
+
+
+\end{enumerate}
+\end{document}  
