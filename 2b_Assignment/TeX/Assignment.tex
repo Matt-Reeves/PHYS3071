@@ -1,0 +1,133 @@
+\documentclass[11pt]{article}
+\usepackage[left=1.5cm,right=1.5cm,bottom=2cm,top =2cm]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\usepackage{amsmath}
+\geometry{a4paper}   
+                % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[symbol]{footmisc}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\definecolor{vlightgray}{rgb}{0.9,0.9,0.9}
+
+\title{Assignment 4 --- PDEs: The Schrodinger Equation, again. }
+\date{}                                           % Activate to display a given date or no date
+\begin{document}
+\maketitle
+\vspace{-36pt}
+This assignment problem builds upon the code you developed in Workshop X  to investigate quantum tunnelling. Consider  the Schrodinger equation
+\begin{align}
+i \hbar \frac{\partial \psi (x,t)}{\partial t}  &= \hat H  \psi(x,t) & \hat H &= \hat T + \hat V  =   -\tfrac{\hbar^2 }{2m} \tfrac{
+\partial^2}{\partial x^2} + V(x)
+\end{align}
+ for a particle in a double well potential  
+\begin{equation}
+V(x) = -V_0 \left\{ \exp\left[ -\frac{(x-a)^2}{\sigma^2} \right] + \exp\left[ -\frac{(x+a)^2}{\sigma^2} \right] \right\}.
+\end{equation}
+\dotfill \\
+
+{\footnotesize{$\dagger$ \textbf{Questions are \emph{optional}:} $\dagger$ = \textbf{[+1 bonus mark] } \\  \indent\textbf{+1 bonus mark} for:  code formatting / program structure  \\  \indent \textbf{+1 bonus mark} for: clear and concise answers  / report layout /  figure quality. } }
+\begin{enumerate}
+%\item Taylor expand the potential about the minimum, and show it can be approximated as a harmonic oscillator potential of the form $V(x) \approx \tfrac{1}{2} m \omega^2 x^2 $ where $\omega = \sqrt{2 V_0 / m \sigma^2}$
+\subsection*{Part A }
+\item \textbf{[4 marks]} Defining appropriate parameters for length $x_0$, and time $t_0$, show the equation of motion takes the form
+\begin{equation}
+i  \partial_{t} {\psi} = \left[-\tfrac{1}{2} \partial_x^2 - {V}_0 \left( e^{-({ x} - {a})^2} + e^{-({x} + {a})^2} \right) \right] \psi,
+\end{equation}
+where all quantities are now dimensionless. Give an alternative example that would be suitable for the potential Eq.~(2) (there are several), and briefly explain how the form would change.
+
+\item \textbf{[4 marks]}  Use imaginary time evolution, $t \rightarrow i t$, to calculate the groundstate of the potential numerically, and plot $|\psi(x)|^2$ and $V(x)$ on the same graph.  Do this for 
+\begin{itemize}
+\item[a)] $\tilde a = 2$, $\tilde V_0 = 1.5$
+\item[b)] $\tilde a =2$, $\tilde V_0 =1.5$, but when only the left well is active.
+%\item[$^\dagger$ c)]  Show via Taylor expansion that a single well can be approximated as $V(x) \approx -V_0 + \tfrac{1}{2} m \omega^2 (x+a)^2$, with $\omega = \omega(V_0)$. Compare graphically $|\psi(x)|^2$ for the exact groundstate and the harmonic approximation for a case where $V_0 \gg 1$.
+\end{itemize}
+% For ii), show  the potential  can be approximated as $V(x) \approx -V_0 + \tfrac{1}{2} m \omega^2 (x+a)^2$, where the effective frequency $\omega = \omega(V_0)$. Compare graphically $|\psi(x)|^2$ for your groundstate with the analytical result for the harmonic approximation. %\footnote{every eigenstate will decay at a rate proportional to its energy. Since an arbitrary wavefunction $\psi(x,t)$ can be written in terms of the eigenstates
+%\begin{equation}
+%\psi(x,\delta t) = \sum_n c_n  e^{-i E_n \delta t} \phi_n(x)
+%\end{equation}
+%Any initial guess will converge to the groundstate, since this decays the slowest. }
+%\begin{align}
+%\tilde x &= x / \ell, & \tilde t  &= t / \tau & \tilde \psi &= \psi /\sqrt{\ell},
+%\end{align}   
+
+
+
+%\item \textbf{Dynamics:} If we apply the Fourier transform to the Schrodinger equation, we have
+%\begin{align}
+% \frac{\partial \psi(k,t)}{\partial t} = -\frac{ik ^2 }{2} \psi(k,t) 
+%\end{align}
+%giving the wavefunction at time $t$ in Fourier space as
+%\begin{equation}
+% \psi(k,t) = \exp[-i k^2 t /2 ] \psi(k,0).
+%\end{equation}
+\item \textbf{[4 marks]}  The split operator method you applied in the workshop can be improved by a simple modification of splitting one of the operators\footnote{This can be shown from the Baker-Cambell-Hausdorf formula: for any two non-commuting operators $X$ and $Y$ the product of their exponentials is  $e^{X\delta t }e^{Y\delta t} = e^{(X+ Y)\delta t + [X,Y]\delta t^2 /2 + \dots }$. }:
+\begin{equation}
+\exp\left[- i (\hat T + \hat V) \delta t  \right] \approx \exp \left[ - i \hat V \delta t/2  \right] \exp \left[ - i \hat T \delta t  \right] \exp \left[ - i \hat V \delta t/2  \right]  + \mathcal{O}(\delta t)^3.
+\end{equation}
+\begin{itemize}
+\item[a)] In our implementation, why is it more computationally efficient to split $\hat V$ instead of $\hat T$?  Could the program have been constructed in a way that it would be better to do the opposite?
+\item[b)]  Can you see a way Eq. (4) could be further optimized for computational speed? Explain. [Hint: consider two successive time steps applied to the wavefunction]
+\end{itemize}
+
+\pagebreak
+\subsection*{Part B}
+\item \textbf{[8 marks]}  Suppose  initially only the left well is  active and a particle sits in the groundstate of the well at $x=-a$, with $a\geq1$. The right well is then instantly turned on at $t=0$. 
+
+\item[a)] Upgrade the algorithm to use Eq.~(4).
+
+\item[$^\dagger$b)] Implement the optimization in you identified in Q3. b) above.   
+
+\item [c)] Simulate the dynamics of this system, and plot the probability of finding the particle in the left well  vs. time
+\begin{equation}
+P_L(t) = \int_{x<0} dx\;    |\psi(x,t)|^2,
+\end{equation} 
+for a few combinations of $a$ and $V_0$. Comment.
+
+\item[ d)]   Compare how well Eq.~(4)  conserves energy $\langle \hat H \rangle$ against the ordinary split operator method for a few values of $\Delta t$. Tabulate or plot the result.
+
+\item [$^{\dagger\dagger}$e)]  Use $P_L(t)$ to calculate the tunnelling frequency vs. $ a$ (for fixed $V_0$).
+
+\item [f)] Investigate the same tunneling scenario for the \emph{nonlinear} schrodinger equation\footnote[1]{This equation describes (under certain assumptions) a gas of interacting atoms collectively described by the wavefunction $\psi(x,t)$; the particle interaction strength $g$ depends on the type of atom and the number of particles, and the effective potential $U(x)$ depends on the density of particles through $|\psi(x,t)|^2$. Eq. (6) is already dimensionless (you do not need to work out the dimensionless form). } 
+\begin{align}
+i\partial_t \psi &= [-\tfrac{1}{2} \partial_x^2 + U(x)] \psi, &U (x) &=  V(x) + g |\psi(x,t)|^2.
+\end{align}
+ Explore the effect of nonlinear interactions on the tunnelling for $V_0= 1.5$, $a =2$, and $ 0 \leq g \leq 1$,  and report your findings.
+
+\end{enumerate}
+\vspace{1cm}
+
+
+%\newpage
+%\section{A Nonlinear BVP with Shooting }
+%The Poisson-Boltzmann equation is an equation that appears in a variety of systems such as electron plasmas, polymers, and hydrodynamics. It relates the density of charges $n(\mathbf{r})$ and the to a  potential field $\phi(\mathbf{r})$
+%\begin{equation}
+%n(\mathbf{r})  =  n_0\exp\{-\beta\phi(\mathbf{r}) -  \alpha r^2 \}
+%\end{equation}
+%\begin{equation}
+%n(\mathbf{r}) = -\nabla^2{\phi(\mathbf{r})}
+%\end{equation}
+%Since the PB equation is a  \emph{nonlinear} partial differential equation, in general it must be solved numerically,  analytically and it must be solved numerically.  
+%
+%\begin{enumerate}
+%\item Defining $u(r) = \log{[n(r)/n_0]}$, show the equation can be written as 
+%\begin{align}
+% u''(r) + \frac{1}{r} u'(r)  &= f e^{u} - g, & u(0) &=0, \quad u'(0) = 0.
+%%\nabla^2 \log{\left[ \frac{n (r)}{n_0}\right]}  =  \nabla^2 (-\beta \phi(r) - \beta \omega r^2 )
+%\end{align}
+%Give expressions for $f$ and $g$.
+%\end{enumerate}
+
+%\section{}
+%\subsection{}
+
+
+
+\end{document}  
